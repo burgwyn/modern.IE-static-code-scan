@@ -21,8 +21,9 @@ var checklibs = require('../lib/checks/check-libs.js'),
     url = require('url'),
     request = require('request'),
     cheerio = require('cheerio'),
-    jsloader = require('../lib/checks/loadjs.js'),
+    jsloader = require('../lib/loadjs.js'),
     testServer = require('../static/test-server.js'),
+    requester = require('../lib/requester.js'),
     testUrl = 'http://localhost:' + testServer.port + '/libs-';
 
 
@@ -42,6 +43,7 @@ function checkPage(page, test, expected) {
         var website = {
             url: url.parse(uri),
             content: content,
+            request: requester(),
             $: cheerio.load(content)
         };
 
@@ -160,6 +162,19 @@ module.exports['JS Libraries'] = {
                     minVersion: "1.7.2"
                 }
             ]
+        });
+    },
+    'jQuery up to date 1.12': function (test) {
+        checkPage('13.html', test, {
+            passed: true
+        });
+    },
+    // Unit test for issue #97 (https://github.com/MicrosoftEdge/static-code-scan/issues/97)
+    // Tests both compiled & minified version of Bootstrap 3.3.5 which previously caused a
+    // false negative scan (detected as out dated jQuery)
+    'Boostrap 3.3.5': function (test) {
+        checkPage('12.html', test, {
+            passed: true
         });
     }
 };
